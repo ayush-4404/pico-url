@@ -17,8 +17,8 @@ const urlSchema = new mongoose.Schema({
     },
     visitHistory: [{
         timeStamp: { type: Date, default: Date.now },
-        ip: {type :string},
-        userAgent: {type :string},
+        ip: {type :String},
+        userAgent: {type :String},
     }],
     isActive: {
         type: Boolean,
@@ -28,7 +28,7 @@ const urlSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 },
     { timestamps: true }
 );

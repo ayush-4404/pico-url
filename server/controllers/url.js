@@ -1,6 +1,12 @@
-const URL     = require('../models/url');
+const UrlModel     = require('../models/url');
 const redis   = require('../config/redis');       
-const { encode } = require('../utils/base62');
+const { encode } = require('../utils/base62').default;
+
+const RESERVED_KEYWORDS = [
+    'login', 'register', 'auth', 'url', 'api',
+    'dashboard', 'analytics', 'admin', 'favicon.ico',
+    'robots.txt', 'sitemap.xml', 'health', 'me',
+];
 
 // POST /url
 async function handleCreateShortUrl(req, res) {
@@ -16,7 +22,16 @@ async function handleCreateShortUrl(req, res) {
 
     if (customAlias) {
         // user provided their own alias
-        const taken = await URL.findOne({ shortId: customAlias });
+        if (RESERVED_KEYWORDS.includes(customAlias.toLowerCase())) {
+            return res.status(400).json({ error: `"${customAlias}" is a reserved keyword` });
+        }
+
+        // check alias format — only allow alphanumeric and hyphens
+        if (!/^[a-zA-Z0-9-]+$/.test(customAlias)) {
+            return res.status(400).json({ error: 'Alias can only contain letters, numbers, and hyphens' });
+        }
+        
+        const taken = await UrlModel.findOne({ shortId: customAlias });
         if (taken) return res.status(409).json({ error: 'Alias already taken' });
         shortId = customAlias;
     } else {
@@ -26,7 +41,7 @@ async function handleCreateShortUrl(req, res) {
     }
 
     try {
-        const entry = await URL.create({
+        const entry = await UrlModel.create({
             shortId,
             redirectUrl: url,
             customAlias: !!customAlias,
@@ -54,7 +69,7 @@ async function handleRedirect(req, res) {
     const cached = await redis.get(`url:${shortId}`);
     if (cached) {
         // still log the visit, but don't block the redirect on it
-        URL.findOneAndUpdate(
+        await UrlModel.findOneAndUpdate(
             { shortId },
             { $push: { visitHistory: { timeStamp: new Date(), ip: req.ip, userAgent: req.headers['user-agent'] } } }
         ).exec();
@@ -63,7 +78,7 @@ async function handleRedirect(req, res) {
     }
 
     // 2. cache miss — hit MongoDB
-    const entry = await URL.findOne({ shortId });
+    const entry = await UrlModel.findOne({ shortId });
 
     if (!entry)          return res.status(404).json({ error: 'Not found' });
     if (!entry.isActive) return res.status(410).json({ error: 'Link disabled' });
@@ -79,10 +94,10 @@ async function handleRedirect(req, res) {
     await redis.setEx(`url:${shortId}`, ttl, entry.redirectUrl);
 
     // 4. log visit
-    await URL.findOneAndUpdate(
+    await UrlModel.findOneAndUpdate(
         { shortId },
         { $push: { visitHistory: { timeStamp: new Date(), ip: req.ip, userAgent: req.headers['user-agent'] } } }
-    );
+    ).exec();
 
     return res.redirect(entry.redirectUrl);
 }
@@ -91,7 +106,7 @@ async function handleRedirect(req, res) {
 async function handleGetAnalytics(req, res) {
     const { shortId } = req.params;
 
-    const entry = await URL.findOne({ shortId });
+    const entry = await UrlModel.findOne({ shortId });
     if (!entry) return res.status(404).json({ error: 'Not found' });
 
     // only owner can see analytics
@@ -115,7 +130,7 @@ async function handleToggleActive(req, res) {
     const { shortId } = req.params;
     const { isActive } = req.body;
 
-    const entry = await URL.findOne({ shortId });
+    const entry = await UrlModel.findOne({ shortId });
     if (!entry) return res.status(404).json({ error: 'Not found' });
 
     if (entry.createdBy?.toString() !== req.user.id) {
@@ -130,10 +145,55 @@ async function handleToggleActive(req, res) {
 
     return res.json({ shortId, isActive: entry.isActive });
 }
+// GET /url/my-urls — get all URLs created by logged in user
+async function handleGetMyUrls(req, res) {
+    try {
+        const urls = await UrlModel.find({ createdBy: req.user.id })
+            .sort({ createdAt: -1 })   // newest first
+            .select('-visitHistory');   // exclude full history for performance
+
+        return res.json({
+            total: urls.length,
+            urls,
+        });
+    } catch (err) {
+        return res.status(500).json({ error: 'Server error' });
+    }
+}
+
+// DELETE /url/:shortId — delete a URL
+async function handleDeleteUrl(req, res) {
+    const { shortId } = req.params;
+
+    try {
+        const entry = await UrlModel.findOne({ shortId });
+
+        if (!entry) return res.status(404).json({ error: 'Not found' });
+
+        // only owner can delete
+        if (entry.createdBy?.toString() !== req.user.id.toString()) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        await UrlModel.deleteOne({ shortId });
+
+        // remove from Redis cache too
+        await redis.del(`url:${shortId}`);
+
+        return res.json({ message: 'URL deleted successfully' });
+
+    } catch (err) {
+        return res.status(500).json({ error: 'Server error' });
+    }
+}
+
+
 
 module.exports = {
     handleCreateShortUrl,
     handleRedirect,
     handleGetAnalytics,
+    handleGetMyUrls,
+    handleDeleteUrl,
     handleToggleActive,
 };
