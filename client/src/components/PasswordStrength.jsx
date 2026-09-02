@@ -1,3 +1,5 @@
+import { Check, Circle } from 'lucide-react';
+
 export default function PasswordStrength({ password }) {
   if (!password) return null;
 
@@ -12,6 +14,7 @@ export default function PasswordStrength({ password }) {
   const strength = passed <= 1 ? 'Weak' : passed <= 2 ? 'Fair' : passed === 3 ? 'Good' : 'Strong';
   const colors   = { Weak: 'bg-red-500', Fair: 'bg-yellow-500', Good: 'bg-blue-500', Strong: 'bg-green-500' };
   const widths   = { Weak: 'w-1/4', Fair: 'w-2/4', Good: 'w-3/4', Strong: 'w-full' };
+  const labelColor = { Weak: 'text-red-400', Fair: 'text-yellow-400', Good: 'text-blue-400', Strong: 'text-green-400' };
 
   return (
     <div className="mt-2 space-y-2">
@@ -19,14 +22,18 @@ export default function PasswordStrength({ password }) {
         <div className="flex-1 h-1 bg-zinc-800 rounded-full overflow-hidden">
           <div className={`h-full rounded-full transition-all duration-500 ${colors[strength]} ${widths[strength]}`} />
         </div>
-        <span className={`text-xs font-medium ${strength === 'Strong' ? 'text-green-400' : strength === 'Good' ? 'text-blue-400' : strength === 'Fair' ? 'text-yellow-400' : 'text-red-400'}`}>
+        <span className={`text-xs font-medium ${labelColor[strength]}`}>
           {strength}
         </span>
       </div>
       <ul className="space-y-1">
         {checks.map((c) => (
           <li key={c.label} className={`text-xs flex items-center gap-1.5 ${c.pass ? 'text-green-400' : 'text-zinc-500'}`}>
-            <span>{c.pass ? '✓' : '○'}</span> {c.label}
+            {c.pass
+              ? <Check className="h-3 w-3 flex-shrink-0" />
+              : <Circle className="h-3 w-3 flex-shrink-0" />
+            }
+            {c.label}
           </li>
         ))}
       </ul>

@@ -11,8 +11,16 @@
   }
 
   body {
-    @apply bg-[#0a0a0a] text-white font-sans;
+    @apply text-white font-sans;
+    /* Owns the base background — pages are transparent on top of AnimatedBackground */
+    background-color: #0a0a0a;
     margin: 0;
+  }
+
+  /* #root is transparent so the fixed AnimatedBackground shows through */
+  #root {
+    background: transparent;
+    position: relative;
   }
 
   /* Custom scrollbar */

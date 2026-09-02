@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { Zap } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Navbar() {
@@ -14,7 +15,7 @@ export default function Navbar() {
     <nav className="fixed top-0 inset-x-0 z-50 border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <Link to="/" className="text-white font-semibold text-lg tracking-tight flex items-center gap-2">
-          <span className="text-accent">⚡</span> pico.url
+          <Zap className="h-4 w-4 text-accent fill-accent" /> pico.url
         </Link>
 
         <div className="flex items-center gap-3">

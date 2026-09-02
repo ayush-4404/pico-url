@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Zap } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PasswordStrength from '../components/PasswordStrength';
@@ -45,19 +46,19 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4 pt-14 py-8">
+    <div className="min-h-screen flex items-center justify-center px-4 pt-14 py-8">
       <div className="w-full max-w-sm animate-slide-up">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link to="/" className="text-white font-semibold text-xl">
-            <span className="text-accent">⚡</span> pico.url
+          <Link to="/" className="text-white font-semibold text-xl flex items-center justify-center gap-2">
+            <Zap className="h-4 w-4 text-accent fill-accent" /> pico.url
           </Link>
           <h1 className="mt-4 text-2xl font-bold text-white">Create an account</h1>
           <p className="text-zinc-500 text-sm mt-1">Free forever. No credit card.</p>
         </div>
 
         {/* Card */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-4">
+        <div className="bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl p-6 space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* Name */}
             <div>

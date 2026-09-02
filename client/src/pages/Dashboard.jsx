@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Copy, Check, Trash2, BarChart2, ExternalLink,
+  Link as LinkIcon, Plus, Circle, CheckCircle2
+} from 'lucide-react';
 import { getMyUrls, deleteUrl, toggleActive } from '../api/urls';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -11,13 +15,20 @@ function CopyButton({ text }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button onClick={copy} title="Copy short URL" className="p-1.5 rounded hover:bg-zinc-700 text-zinc-500 hover:text-white transition-all text-xs">
-      {copied ? '✓' : '⎘'}
+    <button
+      onClick={copy}
+      title="Copy short URL"
+      className="p-1.5 rounded hover:bg-zinc-700 text-zinc-500 hover:text-white transition-all"
+    >
+      {copied
+        ? <Check className="h-3.5 w-3.5 text-green-400" />
+        : <Copy className="h-3.5 w-3.5" />
+      }
     </button>
   );
 }
 
-function DeleteConfirm({ shortId, onConfirm, onCancel, loading }) {
+function DeleteConfirm({ onConfirm, onCancel, loading }) {
   return (
     <div className="flex items-center gap-2 animate-fade-in">
       <span className="text-xs text-zinc-400">Delete this link?</span>
@@ -42,14 +53,17 @@ function DeleteConfirm({ shortId, onConfirm, onCancel, loading }) {
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center animate-fade-in">
-      <div className="text-6xl mb-4">🔗</div>
+      <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 mb-5">
+        <LinkIcon className="h-8 w-8 text-zinc-600" />
+      </div>
       <h3 className="text-white font-medium text-lg mb-1">No links yet</h3>
       <p className="text-zinc-500 text-sm mb-6">Shorten your first URL to get started.</p>
       <Link
         to="/"
-        className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-all"
+        className="flex items-center gap-2 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-all"
       >
-        Create a link →
+        <Plus className="h-4 w-4" />
+        Create a link
       </Link>
     </div>
   );
@@ -59,7 +73,7 @@ export default function Dashboard() {
   const [urls, setUrls]         = useState([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState('');
-  const [deletingId, setDeletingId] = useState(null);   // shortId confirming delete
+  const [deletingId, setDeletingId] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [togglingId, setTogglingId] = useState(null);
 
@@ -86,11 +100,8 @@ export default function Dashboard() {
       setUrls((prev) =>
         prev.map((u) => u.shortId === shortId ? { ...u, isActive: !currentState } : u)
       );
-    } catch {
-      // silently fail, could add toast here
-    } finally {
-      setTogglingId(null);
-    }
+    } catch { /* silent */ }
+    finally { setTogglingId(null); }
   };
 
   const handleDelete = async (shortId) => {
@@ -99,29 +110,29 @@ export default function Dashboard() {
       await deleteUrl(shortId);
       setUrls((prev) => prev.filter((u) => u.shortId !== shortId));
       setDeletingId(null);
-    } catch {
-      // silently fail
-    } finally {
-      setDeleteLoading(null);
-    }
+    } catch { /* silent */ }
+    finally { setDeleteLoading(null); }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-14">
+    <div className="min-h-screen pt-14">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white">My Links</h1>
             <p className="text-zinc-500 text-sm mt-0.5">
-              {urls.length > 0 ? `${urls.length} link${urls.length !== 1 ? 's' : ''}` : 'Manage all your shortened URLs'}
+              {urls.length > 0
+                ? `${urls.length} link${urls.length !== 1 ? 's' : ''}`
+                : 'Manage all your shortened URLs'}
             </p>
           </div>
           <Link
             to="/"
-            className="px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-all"
           >
-            + New Link
+            <Plus className="h-4 w-4" />
+            New Link
           </Link>
         </div>
 
@@ -137,14 +148,16 @@ export default function Dashboard() {
         ) : (
           <div className="space-y-3 animate-fade-in">
             {urls.map((url) => {
-              const shortUrl = `${baseUrl}/${url.shortId}`;
+              const shortUrl  = `${baseUrl}/${url.shortId}`;
               const isExpired = url.expiresAt && new Date(url.expiresAt) < new Date();
 
               return (
                 <div
                   key={url.shortId}
                   className={`group bg-zinc-900 border rounded-xl px-5 py-4 transition-all ${
-                    url.isActive && !isExpired ? 'border-zinc-800 hover:border-zinc-700' : 'border-zinc-800/50 opacity-60'
+                    url.isActive && !isExpired
+                      ? 'border-zinc-800 hover:border-zinc-700'
+                      : 'border-zinc-800/50 opacity-60'
                   }`}
                 >
                   {/* Top row */}
@@ -161,7 +174,6 @@ export default function Dashboard() {
                         </a>
                         <CopyButton text={shortUrl} />
 
-                        {/* Status badges */}
                         {isExpired && (
                           <span className="text-xs px-2 py-0.5 bg-zinc-800 text-zinc-500 rounded-full">Expired</span>
                         )}
@@ -171,11 +183,11 @@ export default function Dashboard() {
                       </div>
 
                       <p className="text-zinc-500 text-xs mt-1 truncate max-w-md" title={url.redirectUrl}>
-                        → {url.redirectUrl}
+                        {url.redirectUrl}
                       </p>
                     </div>
 
-                    {/* Stats */}
+                    {/* Click count */}
                     <div className="flex items-center gap-1 text-zinc-400 text-sm flex-shrink-0">
                       <span className="text-white font-medium">
                         {url.visitHistory?.length ?? 0}
@@ -184,7 +196,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* Bottom row */}
+                  {/* Bottom row — actions */}
                   <div className="mt-3 flex items-center justify-between">
                     <div className="flex items-center gap-4 text-xs text-zinc-600">
                       <span>Created {new Date(url.createdAt).toLocaleDateString()}</span>
@@ -195,24 +207,28 @@ export default function Dashboard() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       {/* Analytics */}
                       <Link
                         to={`/analytics/${url.shortId}`}
-                        className="text-xs text-zinc-500 hover:text-zinc-300 px-2.5 py-1 rounded-md hover:bg-zinc-800 transition-all"
+                        className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 px-2.5 py-1.5 rounded-md hover:bg-zinc-800 transition-all"
                       >
-                        Analytics ↗
+                        <BarChart2 className="h-3.5 w-3.5" />
+                        Analytics
                       </Link>
 
                       {/* Toggle active */}
                       <button
                         onClick={() => handleToggle(url.shortId, url.isActive)}
                         disabled={togglingId === url.shortId}
-                        className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 px-2.5 py-1 rounded-md hover:bg-zinc-800 transition-all disabled:opacity-50"
+                        title={url.isActive ? 'Disable link' : 'Enable link'}
+                        className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 px-2.5 py-1.5 rounded-md hover:bg-zinc-800 transition-all disabled:opacity-50"
                       >
                         {togglingId === url.shortId
                           ? <LoadingSpinner size="sm" />
-                          : <span className={`h-2 w-2 rounded-full ${url.isActive ? 'bg-green-500' : 'bg-zinc-600'}`} />
+                          : url.isActive
+                            ? <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                            : <Circle className="h-3.5 w-3.5" />
                         }
                         {url.isActive ? 'Active' : 'Inactive'}
                       </button>
@@ -220,7 +236,6 @@ export default function Dashboard() {
                       {/* Delete */}
                       {deletingId === url.shortId ? (
                         <DeleteConfirm
-                          shortId={url.shortId}
                           onConfirm={() => handleDelete(url.shortId)}
                           onCancel={() => setDeletingId(null)}
                           loading={deleteLoading === url.shortId}
@@ -228,8 +243,9 @@ export default function Dashboard() {
                       ) : (
                         <button
                           onClick={() => setDeletingId(url.shortId)}
-                          className="text-xs text-zinc-600 hover:text-red-400 px-2.5 py-1 rounded-md hover:bg-zinc-800 transition-all"
+                          className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-red-400 px-2.5 py-1.5 rounded-md hover:bg-zinc-800 transition-all"
                         >
+                          <Trash2 className="h-3.5 w-3.5" />
                           Delete
                         </button>
                       )}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, BarChart2, ExternalLink } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
@@ -32,11 +33,9 @@ function groupByDay(visitHistory) {
     const day = new Date(timeStamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     map[day] = (map[day] || 0) + 1;
   });
-  // sort chronologically
-  const sorted = Object.entries(map)
+  return Object.entries(map)
     .map(([date, clicks]) => ({ date, clicks }))
     .sort((a, b) => new Date(a.date) - new Date(b.date));
-  return sorted;
 }
 
 export default function Analytics() {
@@ -64,7 +63,7 @@ export default function Analytics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] pt-14 flex items-center justify-center">
+      <div className="min-h-screen pt-14 flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -72,10 +71,14 @@ export default function Analytics() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] pt-14 flex flex-col items-center justify-center gap-4 text-red-400">
+      <div className="min-h-screen pt-14 flex flex-col items-center justify-center gap-4 text-red-400">
         <p>{error}</p>
-        <button onClick={() => navigate('/dashboard')} className="text-sm text-zinc-400 hover:text-white transition-colors">
-          ← Back to Dashboard
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
         </button>
       </div>
     );
@@ -83,30 +86,36 @@ export default function Analytics() {
 
   const chartData = groupByDay(data.visitHistory);
   const shortUrl  = `${baseUrl}/${data.shortId}`;
-
-  // last 7 days avg
-  const last7 = chartData.slice(-7).reduce((sum, d) => sum + d.clicks, 0);
+  const last7     = chartData.slice(-7).reduce((sum, d) => sum + d.clicks, 0);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-14">
+    <div className="min-h-screen pt-14">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 animate-slide-up">
         {/* Back button */}
         <button
           onClick={() => navigate('/dashboard')}
           className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-sm mb-8 group"
         >
-          <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
+          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
           Back to Dashboard
         </button>
 
         {/* URL title */}
         <div className="mb-8">
-          <h1 className="text-xl font-bold text-white mb-1">
-            <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
-              {shortUrl}
-            </a>
-          </h1>
-          <p className="text-zinc-500 text-sm truncate">→ {data.redirectUrl}</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-white">
+              <a
+                href={shortUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline inline-flex items-center gap-1.5"
+              >
+                {shortUrl}
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </h1>
+          </div>
+          <p className="text-zinc-500 text-sm mt-1 truncate">{data.redirectUrl}</p>
         </div>
 
         {/* Stat cards */}
@@ -130,8 +139,8 @@ export default function Analytics() {
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
           <h2 className="text-white font-semibold mb-6">Clicks over time</h2>
           {chartData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-40 text-zinc-600">
-              <p className="text-4xl mb-3">📊</p>
+            <div className="flex flex-col items-center justify-center h-40 text-zinc-600 gap-3">
+              <BarChart2 className="h-10 w-10 text-zinc-700" />
               <p className="text-sm">No clicks yet</p>
             </div>
           ) : (
@@ -164,7 +173,7 @@ export default function Analytics() {
           )}
         </div>
 
-        {/* Visit history table (last 20) */}
+        {/* Visit history */}
         {data.visitHistory.length > 0 && (
           <div className="mt-6 bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-zinc-800">

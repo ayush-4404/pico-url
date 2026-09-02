@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Copy, Check, ArrowRight, Plus, Minus, Zap } from 'lucide-react';
 import { createUrl } from '../api/urls';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -14,9 +15,10 @@ function CopyButton({ text }) {
   return (
     <button
       onClick={copy}
-      className="flex-shrink-0 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-sm font-medium transition-all"
+      className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-sm font-medium transition-all"
     >
-      {copied ? '✓ Copied' : 'Copy'}
+      {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+      {copied ? 'Copied' : 'Copy'}
     </button>
   );
 }
@@ -58,8 +60,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
-      {/* Hero */}
+    <div className="min-h-screen flex flex-col">
       <main className="flex-1 flex flex-col items-center justify-center px-4 pt-24 pb-16">
         <div className="w-full max-w-2xl animate-slide-up">
           {/* Badge */}
@@ -94,19 +95,23 @@ export default function Landing() {
                 disabled={loading}
                 className="px-6 py-3.5 bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all flex items-center gap-2 whitespace-nowrap"
               >
-                {loading ? <LoadingSpinner size="sm" /> : null}
-                {loading ? 'Shortening…' : 'Shorten →'}
+                {loading ? <LoadingSpinner size="sm" /> : <ArrowRight className="h-4 w-4" />}
+                {loading ? 'Shortening…' : 'Shorten'}
               </button>
             </div>
 
             {/* Custom alias toggle */}
-            <div className="flex items-center gap-2">
+            <div>
               <button
                 type="button"
                 onClick={() => setShowAlias(!showAlias)}
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
               >
-                {showAlias ? '− Remove' : '+ Add'} custom alias
+                {showAlias
+                  ? <Minus className="h-3 w-3" />
+                  : <Plus className="h-3 w-3" />
+                }
+                {showAlias ? 'Remove' : 'Add'} custom alias
               </button>
             </div>
 
@@ -130,7 +135,7 @@ export default function Landing() {
 
           {/* Result */}
           {result && (
-            <div className="mt-6 p-4 rounded-xl bg-zinc-900 border border-zinc-700 animate-slide-up">
+            <div className="mt-6 p-4 rounded-xl bg-zinc-900/70 backdrop-blur-xl border border-zinc-700 animate-slide-up">
               <p className="text-xs text-zinc-500 mb-2 uppercase tracking-widest">Your short link</p>
               <div className="flex items-center gap-3">
                 <a
@@ -154,8 +159,9 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800 py-6 text-center text-zinc-600 text-sm">
-        Built with ⚡ — Pico URL
+      <footer className="border-t border-zinc-800 py-6 text-center text-zinc-600 text-sm flex items-center justify-center gap-1.5">
+        <Zap className="h-3.5 w-3.5 text-accent fill-accent" />
+        <span>Pico URL</span>
       </footer>
     </div>
   );
