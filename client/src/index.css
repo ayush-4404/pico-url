@@ -12,24 +12,88 @@
 
   body {
     @apply text-white font-sans;
-    /* Owns the base background — pages are transparent on top of AnimatedBackground */
-    background-color: #0a0a0a;
+    background-color: #1a1a2e;   /* bg.primary */
     margin: 0;
   }
 
-  /* #root is transparent so the fixed AnimatedBackground shows through */
   #root {
     background: transparent;
     position: relative;
   }
 
-  /* Custom scrollbar */
+  /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { @apply bg-zinc-950; }
-  ::-webkit-scrollbar-thumb { @apply bg-zinc-700 rounded-full; }
-  ::-webkit-scrollbar-thumb:hover { @apply bg-zinc-600; }
+  ::-webkit-scrollbar-track { background: #1a1a2e; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
 }
 
+/* ─── Glass design system ──────────────────────────────────────────────────── */
+@layer components {
+
+  /* Cards / panels */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 12px;
+  }
+
+  /* Text inputs */
+  .glass-input {
+    display: block;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .glass-input::placeholder { color: #475569; }
+
+  .glass-input:focus {
+    border-color: rgba(147, 197, 253, 0.55);
+    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.10);
+  }
+
+  .glass-input.error {
+    border-color: rgba(239, 68, 68, 0.55);
+  }
+
+  .glass-input.error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10);
+  }
+
+  /* Buttons (primary CTA) */
+  .glass-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .glass-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.21);
+    border-color: rgba(255, 255, 255, 0.30);
+    box-shadow: 0 0 20px rgba(147, 197, 253, 0.10);
+  }
+
+  .glass-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+/* ─── Utilities ─────────────────────────────────────────────────────────────── */
 @layer utilities {
   .h-13 { height: 3.25rem; }
 }
