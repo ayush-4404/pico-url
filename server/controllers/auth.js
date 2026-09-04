@@ -11,8 +11,9 @@ async function handleRegister(req, res) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const {isValid, errors} = validatePassword(password);
-    if(!isValid){
+    const validator = typeof validatePassword === 'function' ? validatePassword : validatePassword.default;
+    const { isValid, errors } = validator(password);
+    if (!isValid) {
         return res.status(400).json({
             error: 'Password does not meet the requirements',
             requirements: errors
@@ -47,6 +48,7 @@ async function handleRegister(req, res) {
         });
 
     } catch (err) {
+        console.error('Register error:', err);
         return res.status(500).json({ error: 'Server error' });
     }
 }

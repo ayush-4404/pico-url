@@ -1,9 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 require('dotenv').config();  // load .env variables
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());  // Enable CORS for all routes
 // Middleware to parse JSON requests
 app.use(express.json());
 

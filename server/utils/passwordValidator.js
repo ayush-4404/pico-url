@@ -24,4 +24,4 @@ function validatePassword(password) {
     };
 }
 
-export default validatePassword;
+module.exports = validatePassword;
