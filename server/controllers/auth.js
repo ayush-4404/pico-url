@@ -11,8 +11,7 @@ async function handleRegister(req, res) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const validator = typeof validatePassword === 'function' ? validatePassword : validatePassword.default;
-    const { isValid, errors } = validator(password);
+    const { isValid, errors } = validatePassword(password);
     if (!isValid) {
         return res.status(400).json({
             error: 'Password does not meet the requirements',

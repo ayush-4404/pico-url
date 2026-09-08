@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Copy, Check, ArrowRight, Plus, Minus, Zap } from 'lucide-react';
+import { Copy, Check, ArrowRight, Plus, Minus, Zap, Clock } from 'lucide-react';
 import { createUrl } from '../api/urls';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -26,7 +26,10 @@ export default function Landing() {
   const [result, setResult]       = useState(null);
   const [error, setError]         = useState('');
   const [loading, setLoading]     = useState(false);
-  const [showAlias, setShowAlias] = useState(false);
+  const [showAlias, setShowAlias]   = useState(false);
+  const [showExpiry, setShowExpiry] = useState(false);
+  const [expiryOption, setExpiryOption] = useState('7d'); // '24h', '7d', '30d', 'custom'
+  const [customExpiry, setCustomExpiry] = useState('');
 
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -37,9 +40,35 @@ export default function Landing() {
     setResult(null);
     if (!url.trim()) return setError('Please enter a URL');
     if (!isAuthenticated) { navigate('/login'); return; }
+
+    let expiresAt = undefined;
+    if (showExpiry) {
+      const now = new Date();
+      if (expiryOption === '24h') {
+        expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+      } else if (expiryOption === '7d') {
+        expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      } else if (expiryOption === '30d') {
+        expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      } else if (expiryOption === 'custom') {
+        if (!customExpiry) {
+          return setError('Please choose an expiration date and time');
+        }
+        const selected = new Date(customExpiry);
+        if (selected <= now) {
+          return setError('Expiration date must be in the future');
+        }
+        expiresAt = selected.toISOString();
+      }
+    }
+
     setLoading(true);
     try {
-      const res = await createUrl({ url: url.trim(), customAlias: alias.trim() || undefined });
+      const res = await createUrl({
+        url: url.trim(),
+        customAlias: alias.trim() || undefined,
+        expiresAt,
+      });
       setResult(res.data);
       setUrl('');
       setAlias('');
@@ -93,18 +122,28 @@ export default function Landing() {
               </button>
             </div>
 
-            {/* Custom alias */}
-            <div>
+            {/* Options toggles */}
+            <div className="flex items-center gap-4 pt-1">
               <button
                 type="button"
                 onClick={() => setShowAlias(!showAlias)}
-                className="flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors"
+                className="flex items-center gap-1 text-xs text-white/40 hover:text-white/80 transition-colors"
               >
                 {showAlias ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
                 {showAlias ? 'Remove' : 'Add'} custom alias
               </button>
+
+              <button
+                type="button"
+                onClick={() => setShowExpiry(!showExpiry)}
+                className="flex items-center gap-1 text-xs text-white/40 hover:text-white/80 transition-colors"
+              >
+                {showExpiry ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                {showExpiry ? 'Remove' : 'Set'} expiration
+              </button>
             </div>
 
+            {/* Custom alias input */}
             {showAlias && (
               <div className="animate-slide-down flex items-center gap-2">
                 <span className="text-white/30 text-sm whitespace-nowrap">pico.url/</span>
@@ -115,6 +154,55 @@ export default function Landing() {
                   placeholder="my-brand"
                   className="glass-input flex-1 px-4 py-2.5"
                 />
+              </div>
+            )}
+
+            {/* Expiration options */}
+            {showExpiry && (
+              <div className="animate-slide-down p-3.5 glass-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-white/70 flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 text-accent" /> Link Expiration
+                  </span>
+                  <span className="text-[11px] text-white/30">Auto-deactivates after expiry</span>
+                </div>
+
+                {/* Preset pills */}
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { id: '24h', label: '24 Hours' },
+                    { id: '7d', label: '7 Days' },
+                    { id: '30d', label: '30 Days' },
+                    { id: 'custom', label: 'Custom' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setExpiryOption(opt.id)}
+                      className={`py-1.5 text-xs rounded-lg transition-all border ${
+                        expiryOption === opt.id
+                          ? 'bg-accent/20 border-accent/60 text-white font-medium shadow-[0_0_12px_rgba(147,197,253,0.15)]'
+                          : 'bg-white/[0.04] border-white/10 text-white/50 hover:text-white hover:bg-white/[0.08]'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom date-time input */}
+                {expiryOption === 'custom' && (
+                  <div className="animate-fade-in pt-1">
+                    <input
+                      type="datetime-local"
+                      value={customExpiry}
+                      min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+                      onChange={(e) => setCustomExpiry(e.target.value)}
+                      className="glass-input px-3 py-2 text-xs"
+                      style={{ colorScheme: 'dark' }}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -134,8 +222,9 @@ export default function Landing() {
                 <CopyButton text={result.shortUrl} />
               </div>
               {result.expiresAt && (
-                <p className="mt-2 text-xs text-white/30">
-                  Expires: {new Date(result.expiresAt).toLocaleDateString()}
+                <p className="mt-2 text-xs text-white/40 flex items-center gap-1.5">
+                  <Clock className="h-3 w-3 text-accent" />
+                  Expires: {new Date(result.expiresAt).toLocaleString()}
                 </p>
               )}
             </div>

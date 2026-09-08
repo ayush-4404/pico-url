@@ -1,6 +1,6 @@
 const UrlModel     = require('../models/url');
 const redis   = require('../config/redis');       
-const { encode } = require('../utils/base62').default;
+const { encode } = require('../utils/base62');
 
 const RESERVED_KEYWORDS = [
     'login', 'register', 'auth', 'url', 'api',
@@ -69,7 +69,7 @@ async function handleRedirect(req, res) {
     const cached = await redis.get(`url:${shortId}`);
     if (cached) {
         // still log the visit, but don't block the redirect on it
-        await UrlModel.findOneAndUpdate(
+        UrlModel.findOneAndUpdate(
             { shortId },
             { $push: { visitHistory: { timeStamp: new Date(), ip: req.ip, userAgent: req.headers['user-agent'] } } }
         ).exec();
@@ -94,7 +94,7 @@ async function handleRedirect(req, res) {
     await redis.setEx(`url:${shortId}`, ttl, entry.redirectUrl);
 
     // 4. log visit
-    await UrlModel.findOneAndUpdate(
+    UrlModel.findOneAndUpdate(
         { shortId },
         { $push: { visitHistory: { timeStamp: new Date(), ip: req.ip, userAgent: req.headers['user-agent'] } } }
     ).exec();

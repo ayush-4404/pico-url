@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();  // load .env variables
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require('dotenv').config();  // also load server/.env if it exists
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -21,14 +24,15 @@ app.get('/', (req, res) => {
 const redisClient = require('./config/redis');
 
 async function startServer() {
-    try{
+    try {
         await redisClient.connect();  
         console.log('Connected to Redis');
-        await mongoose.connect(process.env.MONGO_URL);  // then MongoDB
+        const mongoUri = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/picourl';
+        await mongoose.connect(mongoUri);  // then MongoDB
         console.log('Connected to MongoDB');
         
-        app.listen(3000, () => console.log('Server running on port 3000'));
-    } catch(err){
+        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    } catch (err) {
         console.error('Error starting server:', err);
         process.exit(1);
     }

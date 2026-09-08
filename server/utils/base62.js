@@ -16,4 +16,4 @@ function decode(str) {
     }, 0);
 }
 
-module.exports = { encode, decode, default: { encode, decode } };
+module.exports = { encode, decode };
