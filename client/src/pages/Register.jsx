@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Zap } from 'lucide-react';
+import { Link2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PasswordStrength from '../components/PasswordStrength';
@@ -20,10 +20,10 @@ export default function Register() {
     const errs = {};
     if (!form.name.trim())  errs.name     = 'Name is required';
     if (!form.email.trim()) errs.email    = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Invalid email';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Invalid email address';
     if (!form.password)     errs.password = 'Password is required';
-    else if (form.password.length < 8)         errs.password = 'Minimum 8 characters';
-    else if (!/[A-Z]/.test(form.password))     errs.password = 'Needs an uppercase letter';
+    else if (form.password.length < 8)         errs.password = 'At least 8 characters required';
+    else if (!/[A-Z]/.test(form.password))     errs.password = 'At least one uppercase letter required';
     return errs;
   };
 
@@ -44,66 +44,89 @@ export default function Register() {
     }
   };
 
-  const inputCls = (field) =>
-    `glass-input px-4 py-2.5 ${errors[field] ? 'error' : ''}`;
-
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 pt-14 py-8">
-      <div className="w-full max-w-sm animate-slide-up">
-
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="text-white font-semibold text-xl flex items-center justify-center gap-2">
-            <Zap className="h-4 w-4 text-accent fill-accent" /> pico.url
+    <div className="min-h-screen flex items-center justify-center px-4 pt-16 pb-24">
+      <div className="w-full max-w-sm space-y-6 animate-fade-in">
+        {/* Logo Mark */}
+        <div className="text-center flex flex-col items-center gap-2">
+          <Link to="/" className="w-12 h-12 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center shadow-inner hover:scale-105 transition-transform">
+            <Link2 className="w-5 h-5 text-blue-500" />
           </Link>
-          <h1 className="mt-4 text-2xl font-bold text-white">Create an account</h1>
-          <p className="text-white/30 text-sm mt-1">Free forever. No credit card.</p>
+          <h1 className="text-xl font-medium tracking-tight text-white mt-1">
+            PICO<span className="text-blue-500">.</span>URL
+          </h1>
+          <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">
+            Create free account
+          </p>
         </div>
 
-        {/* Glass card */}
-        <div className="glass-card p-6 space-y-4" style={{ boxShadow: '0 16px 40px rgba(0,0,0,0.4)' }}>
+        {/* Clean card */}
+        <div className="clean-card p-6 bg-[#0c0c0c]/90 space-y-4 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-
-            <div>
-              <label className="block text-sm text-white/40 mb-1.5">Full name</label>
-              <input type="text" value={form.name} onChange={set('name')}
-                placeholder="Alex Johnson" className={inputCls('name')} />
-              {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name}</p>}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400">Name</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={set('name')}
+                placeholder="Alex Morgan"
+                required
+                className="clean-input text-xs"
+              />
+              {errors.name && <p className="text-[11px] text-red-400 font-mono">{errors.name}</p>}
             </div>
 
-            <div>
-              <label className="block text-sm text-white/40 mb-1.5">Email</label>
-              <input type="email" value={form.email} onChange={set('email')}
-                placeholder="you@example.com" autoComplete="email" className={inputCls('email')} />
-              {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400">Email</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={set('email')}
+                placeholder="you@domain.com"
+                autoComplete="email"
+                required
+                className="clean-input text-xs"
+              />
+              {errors.email && <p className="text-[11px] text-red-400 font-mono">{errors.email}</p>}
             </div>
 
-            <div>
-              <label className="block text-sm text-white/40 mb-1.5">Password</label>
-              <input type="password" value={form.password} onChange={set('password')}
-                placeholder="••••••••" autoComplete="new-password" className={inputCls('password')} />
-              {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password}</p>}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400">Password</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={set('password')}
+                placeholder="••••••••"
+                autoComplete="new-password"
+                required
+                className="clean-input text-xs"
+              />
+              {errors.password && <p className="text-[11px] text-red-400 font-mono">{errors.password}</p>}
               <PasswordStrength password={form.password} />
             </div>
 
             {apiError && (
-              <div className="px-3 py-2.5 rounded-lg text-red-400 text-sm animate-fade-in"
-                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.20)' }}>
+              <div className="p-2.5 rounded-lg bg-red-500/[0.08] border border-red-500/20 text-red-400 text-xs text-center animate-fade-in">
                 {apiError}
               </div>
             )}
 
-            <button type="submit" disabled={loading}
-              className="glass-btn w-full py-2.5 rounded-lg gap-2 text-sm">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-white w-full py-2.5 text-xs font-medium"
+            >
               {loading && <LoadingSpinner size="sm" />}
-              {loading ? 'Creating account…' : 'Create Account'}
+              <span>{loading ? 'Creating account…' : 'Create Account'}</span>
             </button>
           </form>
         </div>
 
-        <p className="text-center text-white/30 text-sm mt-4">
+        <p className="text-center text-xs text-zinc-500">
           Already have an account?{' '}
-          <Link to="/login" className="text-accent hover:text-accent-light transition-colors">Sign in</Link>
+          <Link to="/login" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">
+            Sign in
+          </Link>
         </p>
       </div>
     </div>

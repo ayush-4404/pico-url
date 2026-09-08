@@ -8,92 +8,135 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #0a0a0a;
   }
 
   body {
-    @apply text-white font-sans;
-    background-color: #1a1a2e;   /* bg.primary */
+    @apply text-[#f9fafb] font-sans;
+    background-color: #0a0a0a;
     margin: 0;
+    overflow-x: hidden;
   }
 
   #root {
+    min-height: 100vh;
     background: transparent;
     position: relative;
   }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #1a1a2e; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+  /* Sleek minimalist scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: #0a0a0a; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 }
 
-/* ─── Glass design system ──────────────────────────────────────────────────── */
 @layer components {
+  /* Subtle dot grid pattern */
+  .bg-dotgrid {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 
-  /* Cards / panels */
-  .glass-card {
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+  /* Radial vignette edge falloff */
+  .bg-vignette {
+    background: radial-gradient(ellipse at center, transparent 40%, #0a0a0a 100%);
+  }
+
+  /* Translucent card/surface */
+  .clean-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 12px;
   }
 
-  /* Text inputs */
-  .glass-input {
-    display: block;
+  /* Translucent input matching screenshot */
+  .clean-input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
-    color: #e2e8f0;
-    font-size: 0.875rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #e5e7eb;
     outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: all 0.15s ease;
+  }
+  .clean-input::placeholder {
+    color: #4b5563;
+  }
+  .clean-input:focus {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
 
-  .glass-input::placeholder { color: #475569; }
-
-  .glass-input:focus {
-    border-color: rgba(147, 197, 253, 0.55);
-    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.10);
-  }
-
-  .glass-input.error {
-    border-color: rgba(239, 68, 68, 0.55);
-  }
-
-  .glass-input.error:focus {
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10);
-  }
-
-  /* Buttons (primary CTA) */
-  .glass-btn {
+  /* Primary white CTA button */
+  .btn-white {
+    background: #f9fafb;
+    color: #0a0a0a;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-size: 12px;
+    font-weight: 500;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.20);
-    color: #ffffff;
+    gap: 6px;
+    transition: all 0.15s ease;
     cursor: pointer;
-    font-weight: 600;
-    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   }
-
-  .glass-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.21);
-    border-color: rgba(255, 255, 255, 0.30);
-    box-shadow: 0 0 20px rgba(147, 197, 253, 0.10);
+  .btn-white:hover:not(:disabled) {
+    background: #ffffff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
   }
-
-  .glass-btn:disabled {
-    opacity: 0.45;
+  .btn-white:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
   }
-}
 
-/* ─── Utilities ─────────────────────────────────────────────────────────────── */
-@layer utilities {
-  .h-13 { height: 3.25rem; }
+  /* Secondary dark translucent button */
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: #6b7280;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.07);
+    color: #e5e7eb;
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  /* Minimal nav pill button */
+  .nav-pill {
+    font-size: 11px;
+    color: #6b7280;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    padding: 5px 10px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .nav-pill:hover {
+    color: #d1d5db;
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.05);
+  }
 }

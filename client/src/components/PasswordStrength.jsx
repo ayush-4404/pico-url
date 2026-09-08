@@ -26,7 +26,7 @@ export default function PasswordStrength({ password }) {
       </div>
       <ul className="space-y-1">
         {checks.map((c) => (
-          <li key={c.label} className={`text-xs flex items-center gap-1.5 ${c.pass ? 'text-green-400' : 'text-white/25'}`}>
+          <li key={c.label} className={`text-[11px] font-mono flex items-center gap-1.5 ${c.pass ? 'text-emerald-400' : 'text-zinc-500'}`}>
             {c.pass ? <Check className="h-3 w-3 flex-shrink-0" /> : <Circle className="h-3 w-3 flex-shrink-0" />}
             {c.label}
           </li>

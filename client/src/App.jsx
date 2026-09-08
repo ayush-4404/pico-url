@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import Navbar             from './components/Navbar';
 import PrivateRoute       from './components/PrivateRoute';
 import AnimatedBackground from './components/AnimatedBackground';
+import BottomNav        from './components/BottomNav';
 import Landing   from './pages/Landing';
 import Login     from './pages/Login';
 import Register  from './pages/Register';
@@ -18,7 +19,7 @@ function GuestRoute({ children }) {
 function AppRoutes() {
   return (
     // relative + z-10 so page content renders above the z-0 fixed background
-    <div className="relative" style={{ zIndex: 1 }}>
+    <div className="relative min-h-screen" style={{ zIndex: 1 }}>
       <Navbar />
       <Routes>
         <Route path="/"         element={<Landing />} />
@@ -32,6 +33,7 @@ function AppRoutes() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <BottomNav />
     </div>
   );
 }
